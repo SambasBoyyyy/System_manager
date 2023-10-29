@@ -14,6 +14,87 @@ root_tk = customtkinter.CTk()
 root_tk.geometry("1225x625")
 root_tk.title("Sysbench")
 
+
+
+# Define the column names for the process list
+process_columns = ("PID", "Name", "Username", "CPU", "Memory")
+def get_system_info():
+    # Retrieve system information using psutil library
+    cpu_percent = psutil.cpu_percent(interval=1)
+    memory = psutil.virtual_memory()
+    network = psutil.net_io_counters()
+    processes = list(psutil.process_iter())
+
+    # Sort the processes by CPU usage in descending order
+    processes.sort(key=lambda x: x.cpu_percent(), reverse=True)
+
+    return cpu_percent, memory.percent, network, processes
+
+
+
+def update_system_info():
+    try:
+        # Update system information in the GUI
+        cpu_percent, memory_percent, network, processes = get_system_info()
+
+        # # Update CPU label
+        # cpu_label.config(text=f'CPU Usage: {cpu_percent:.2f}%')
+
+        # # Update memory label
+        # memory_label.config(text=f'Memory Usage: {memory_percent:.2f}%')
+
+        # # Update network label
+        # network_label.config(text=f'Network Usage: Sent: {network.packets_sent} packets, Received: {network.packets_recv} packets')
+
+        # # Update the performance graphs
+        #update_performance_graphs(cpu_percent, memory_percent, network.bytes_sent, network.bytes_recv)
+
+        # Update the process list
+        update_process_list(processes)
+
+        # # Update the real-time CPU usage label
+        cpu_label.configure(text=f'CPU Usage: {cpu_percent:.2f}%')
+
+        # # Update the real-time memory usage label
+        # memory_usage_label.configure(text=f'Memory Usage: {memory_percent:.2f}%')
+
+        # # Update the real-time network usage label
+        # network_usage_label.config(text=f'Network Usage: Sent: {network.packets_sent} packets, Received: {network.packets_recv} packets')
+
+    except psutil.NoSuchProcess:
+        pass
+
+    # Schedule the next update in 1 second
+    root_tk.after(1000, update_system_info)
+
+def update_process_list(processes):
+    # Clear the process list
+    process_list.delete(*process_list.get_children())
+
+    # Populate the process list with the current running processes
+    for process in processes:
+        process_info = process.as_dict(attrs=['pid', 'name', 'username', 'cpu_percent', 'memory_percent'])
+        process_list.insert("", "end", values=(
+            process_info['pid'],
+            process_info['name'],
+            process_info['username'],
+            f'{process_info["cpu_percent"]/10:.2f}%',
+            f'{process_info["memory_percent"]:.2f}%'
+        ))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 sidebar = customtkinter.CTkFrame(
     master=root_tk,
     width=200,
@@ -113,80 +194,10 @@ cpu_text_frame.pack()
 # # cpu_text=ttk.Label(cpu_text_frame,text="CPU Usage :")
 # # cpu_text.pack()
 
-cpu_label = customtkinter.CTkLabel(cpu_text_frame, text="CPU Usage :", font=('Poppins', 27,'bold'),)
-cpu_label.pack(anchor="w",padx=100, pady=30)
+cpu_label = customtkinter.CTkLabel(cpu_text_frame,font=('Poppins', 27,'bold'),justify="right")
+cpu_label.pack(anchor="w",padx=125, pady=30)
 tabview.pack()
 
-
-
-
-
-
-# Define the column names for the process list
-process_columns = ("PID", "Name", "Username", "CPU", "Memory")
-def get_system_info():
-    # Retrieve system information using psutil library
-    cpu_percent = psutil.cpu_percent(interval=1)
-    memory = psutil.virtual_memory()
-    network = psutil.net_io_counters()
-    processes = list(psutil.process_iter())
-
-    # Sort the processes by CPU usage in descending order
-    processes.sort(key=lambda x: x.cpu_percent(), reverse=True)
-
-    return cpu_percent, memory.percent, network, processes
-
-
-
-def update_system_info():
-    try:
-        # Update system information in the GUI
-        cpu_percent, memory_percent, network, processes = get_system_info()
-
-        # # Update CPU label
-        # cpu_label.config(text=f'CPU Usage: {cpu_percent:.2f}%')
-
-        # # Update memory label
-        # memory_label.config(text=f'Memory Usage: {memory_percent:.2f}%')
-
-        # # Update network label
-        # network_label.config(text=f'Network Usage: Sent: {network.packets_sent} packets, Received: {network.packets_recv} packets')
-
-        # # Update the performance graphs
-        #update_performance_graphs(cpu_percent, memory_percent, network.bytes_sent, network.bytes_recv)
-
-        # Update the process list
-        update_process_list(processes)
-
-        # # Update the real-time CPU usage label
-        # cpu_usage_label.config(text=f'CPU Usage: {cpu_percent:.2f}%')
-
-        # # Update the real-time memory usage label
-        # memory_usage_label.config(text=f'Memory Usage: {memory_percent:.2f}%')
-
-        # # Update the real-time network usage label
-        # network_usage_label.config(text=f'Network Usage: Sent: {network.packets_sent} packets, Received: {network.packets_recv} packets')
-
-    except psutil.NoSuchProcess:
-        pass
-
-    # Schedule the next update in 1 second
-    # root_tk.after(2500, update_system_info)
-
-def update_process_list(processes):
-    # Clear the process list
-    process_list.delete(*process_list.get_children())
-
-    # Populate the process list with the current running processes
-    for process in processes:
-        process_info = process.as_dict(attrs=['pid', 'name', 'username', 'cpu_percent', 'memory_percent'])
-        process_list.insert("", "end", values=(
-            process_info['pid'],
-            process_info['name'],
-            process_info['username'],
-            f'{process_info["cpu_percent"]/10:.2f}%',
-            f'{process_info["memory_percent"]:.2f}%'
-        ))
 
 
 
