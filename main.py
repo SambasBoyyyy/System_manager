@@ -81,7 +81,7 @@ process_frame = customtkinter.CTkFrame(
     # fg_color="#e8e4e4"
 )
 process_frame.grid(row=0, column=1, padx=0, pady=20)
-l2=customtkinter.CTkLabel(master=process_frame, text="Process Chart",font=('Century Gothic',23),fg_color="transparent",pady=5,bg_color="transparent")
+l2=customtkinter.CTkLabel(master=process_frame, text="Process Chart",font=('Century Gothic',23),fg_color="transparent",bg_color="transparent")
 l2.place(x=-10, y=1)
 l2.pack()
 
@@ -97,9 +97,25 @@ performance_frame.grid(row=0, column=1, padx=0, pady=20)
 
 
 
+tabview= customtkinter.CTkTabview(performance_frame,width=938,height=540,corner_radius=10,border_width=1)
+
+cpu_tab= tabview.add("CPU")
+memory_tab=tabview.add("Memory")
+network_tab=tabview.add("Network")
+# cpu_tab.grid_columnconfigure(0,weight=1)
+# memory_tab.grid_columnconfigure(0,weight=1)
+# network_tab.grid_columnconfigure(0,weight=1)
 
 
+cpu_text_frame=customtkinter.CTkFrame(cpu_tab,width=100,height=250)
+cpu_text_frame.pack(anchor="w",padx=20, pady=30)
+cpu_text_frame.pack()
+# # cpu_text=ttk.Label(cpu_text_frame,text="CPU Usage :")
+# # cpu_text.pack()
 
+cpu_label = customtkinter.CTkLabel(cpu_text_frame, text="CPU Usage :", font=('Poppins', 27,'bold'),)
+cpu_label.pack(anchor="w",padx=100, pady=30)
+tabview.pack()
 
 
 
@@ -155,7 +171,7 @@ def update_system_info():
         pass
 
     # Schedule the next update in 1 second
-    root_tk.after(2500, update_system_info)
+    # root_tk.after(2500, update_system_info)
 
 def update_process_list(processes):
     # Clear the process list
@@ -180,14 +196,14 @@ process_list = ttk.Treeview(process_frame, columns=process_columns, show="headin
 
 for col in process_columns:
     process_list.heading(col, text=col)
-    process_list.column(col,width=185)
+    process_list.column(col,width=183)
     
 # Create a vertical scrollbar
 process_scrollbar = ttk.Scrollbar(process_frame, orient=tk.VERTICAL, command=process_list.yview)
 process_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
 # Configure the Treeview widget to use the scrollbar
-process_list.configure(yscrollcommand=process_scrollbar.set,height=24)
+process_list.configure(yscrollcommand=process_scrollbar.set,height=23)
 process_list.pack(expand=True, fill=tk.BOTH)
 
 # Start updating system information and performance graphs
