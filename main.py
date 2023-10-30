@@ -1,11 +1,12 @@
 import tkinter
-import psutil
 import customtkinter
 from PIL import Image,ImageTk
 import os
 import tkinter as tk
 from tkinter import ttk
 from tkdial import Dial
+import process_list
+import sys_info
 
 
 file_path = os.path.dirname(os.path.realpath(__file__))
@@ -19,24 +20,14 @@ root_tk.title("Sysbench")
 
 # Define the column names for the process list
 process_columns = ("PID", "Name", "Username", "CPU", "Memory")
-def get_system_info():
-    # Retrieve system information using psutil library
-    cpu_percent = psutil.cpu_percent(interval=1)
-    memory = psutil.virtual_memory()
-    network = psutil.net_io_counters()
-    processes = list(psutil.process_iter())
 
-    # Sort the processes by CPU usage in descending order
-    processes.sort(key=lambda x: x.cpu_percent(), reverse=True)
-
-    return cpu_percent, memory.percent, network, processes
 
 
 
 def update_system_info():
     try:
         # Update system information in the GUI
-        cpu_percent, memory_percent, network, processes = get_system_info()
+        cpu_percent, memory_percent, network, processes = sys_info.get_system_info()
 
         # # Update CPU label
         # cpu_label.config(text=f'CPU Usage: {cpu_percent:.2f}%')
@@ -207,6 +198,16 @@ cpu_text_frame.pack(anchor="w")
 
 cpu_label = customtkinter.CTkLabel(cpu_text_frame,font=('Poppins', 27,'bold'))
 cpu_label.pack(padx=90, pady=100)
+
+
+
+
+
+
+
+
+
+
 tabview.pack()
 
 
@@ -214,20 +215,15 @@ tabview.pack()
 
 
 
-# Create a tab for the process list
-process_list = ttk.Treeview(process_frame, columns=process_columns, show="headings")
 
 
-for col in process_columns:
-    process_list.heading(col, text=col)
-    process_list.column(col,width=183)
-    
-# Create a vertical scrollbar
-process_scrollbar = ttk.Scrollbar(process_frame, orient=tk.VERTICAL, command=process_list.yview)
-process_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-# Configure the Treeview widget to use the scrollbar
-process_list.configure(yscrollcommand=process_scrollbar.set,height=24)
+
+
+
+
+#process list
+process_list=process_list.process_list(process_frame)
 process_list.pack(expand=True, fill=tk.BOTH)
 
 # Start updating system information and performance graphs
