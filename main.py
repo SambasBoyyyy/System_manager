@@ -9,6 +9,7 @@ from tkdial import Dial
 import process_list
 import sys_info
 import matplotlib.pyplot as plt
+from scipy.special import jv
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
@@ -16,12 +17,15 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 plt.rcParams["axes.prop_cycle"] = plt.cycler(
     color=["#4C2A85", "#BE96FF", "#957DAD", "#5E366E", "#A98CCC"])
 
+plt.style.use('https://github.com/dhaitz/matplotlib-stylesheets/raw/master/pitayasmoothie-light.mplstyle')
+
 file_path = os.path.dirname(os.path.realpath(__file__))
-customtkinter.set_appearance_mode("Sysyem")
+customtkinter.set_appearance_mode("light")
 customtkinter.set_default_color_theme("green")
 root_tk = customtkinter.CTk() 
 root_tk.geometry("1225x625")
 root_tk.title("Sysbench")
+root_tk.configure(expand=False)
 
 
 
@@ -189,20 +193,20 @@ performance_frame.grid(row=0, column=1, padx=0, pady=20)
 
 
 
-tabview= customtkinter.CTkTabview(performance_frame,width=938,height=540,corner_radius=10,border_width=1)
+tabview= customtkinter.CTkTabview(performance_frame,width=938,height=540,corner_radius=10,border_width=1,fg_color='white')
 
 cpu_tab= tabview.add("CPU")
 memory_tab=tabview.add("Memory")
 network_tab=tabview.add("Network")
 
 
-cpu_text_frame=customtkinter.CTkFrame(cpu_tab, width=50, height=50)
+cpu_text_frame=customtkinter.CTkFrame(cpu_tab,fg_color='white')
 
 dial4 = Dial(master=cpu_text_frame, color_gradient=("red", "blue"),
              text_color="white", text="", unit_width=10, radius=110, scroll=False)
 dial4.pack(side="left")  # Changing the pack placement to the left side
 
-cpu_label = customtkinter.CTkLabel(cpu_text_frame, font=('Poppins', 27, 'bold'))
+cpu_label = customtkinter.CTkLabel(cpu_text_frame, font=('Poppins', 27, 'bold'),text_color='#228B22')
 cpu_label.pack(side="left", padx=10)  # Placing the label to the left with some padding
 
 cpu_text_frame.pack(anchor="center", pady=5)
@@ -211,9 +215,8 @@ cpu_text_frame.pack(anchor="center", pady=5)
 
 cpu_data = []
 max_data_points = 120
-cpu_fig = plt.Figure(figsize=(8,2.5),facecolor=(1, 1, 1, 0)) 
+cpu_fig = plt.Figure(figsize=(8,2.5)) 
 cpu_ax = cpu_fig.add_subplot(111)
-cpu_ax.set_facecolor('none') 
 cpu_canvas = FigureCanvasTkAgg(cpu_fig, master=cpu_tab)
 cpu_canvas.get_tk_widget().pack()
 
