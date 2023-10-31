@@ -61,7 +61,8 @@ def update_system_info():
         dial4.set(cpu_percent)
 
         # # Update the real-time memory usage label
-        # memory_usage_label.configure(text=f'Memory Usage: {memory_percent:.2f}%')
+        memory_label.configure(text=f'Memory Usage: {memory_percent:.2f}%')
+        dial5.set(memory_percent)
 
         # # Update the real-time network usage label
         # network_usage_label.config(text=f'Network Usage: Sent: {network.packets_sent} packets, Received: {network.packets_recv} packets')
@@ -95,11 +96,21 @@ def update_performance_graphs(cpu_percent, memory_percent, network_sent, network
     if len(cpu_data) > max_data_points:
         cpu_data.pop(0)
     cpu_ax.clear()
-    cpu_ax.plot(cpu_data,  label='CPU Usage')
+    cpu_ax.plot(cpu_data, label='CPU Usage')
     cpu_ax.fill_between(range(len(cpu_data)), 0, cpu_data)
     cpu_ax.set_ylim(0, 100)
     cpu_ax.set_title('CPU Usage (%)')
     cpu_canvas.draw()
+    # Update Memory graph
+    memory_data.append(memory_percent)
+    if len(memory_data) > max_data_points:
+        memory_data.pop(0)
+    memory_ax.clear()
+    memory_ax.plot(memory_data ,label='Memory Usage')
+    memory_ax.fill_between(range(len(memory_data)), 0, memory_data)
+    memory_ax.set_ylim(0, 100)
+    memory_ax.set_title('Memory Usage (%)')
+    memory_canvas.draw()
 
 
 
@@ -221,7 +232,21 @@ cpu_canvas = FigureCanvasTkAgg(cpu_fig, master=cpu_tab)
 cpu_canvas.get_tk_widget().pack()
 
 
+#memry tab
+memory_text_frame=customtkinter.CTkFrame(memory_tab,fg_color='white')
+dial5 = Dial(master=memory_text_frame, color_gradient=("red", "blue"),
+             text_color="white", text="", unit_width=10, radius=110, scroll=False)
+dial5.pack(side="left")
+memory_label = customtkinter.CTkLabel(memory_text_frame, font=('Poppins', 27, 'bold'),text_color='#228B22')
+memory_label.pack(side="left", padx=10)
+memory_text_frame.pack(anchor="center", pady=5)
 
+memory_data = []
+max_data_points = 120
+memory_fig = plt.Figure(figsize=(8, 2.5))
+memory_ax = memory_fig.add_subplot(111)
+memory_canvas = FigureCanvasTkAgg(memory_fig, master=memory_tab)
+memory_canvas.get_tk_widget().pack()
 
 
 
