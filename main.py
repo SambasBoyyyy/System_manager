@@ -1,4 +1,5 @@
 import tkinter
+import psutil
 import customtkinter
 from PIL import Image,ImageTk
 import os
@@ -7,10 +8,16 @@ from tkinter import ttk
 from tkdial import Dial
 import process_list
 import sys_info
+import matplotlib.pyplot as plt
 
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+
+plt.rcParams["axes.prop_cycle"] = plt.cycler(
+    color=["#4C2A85", "#BE96FF", "#957DAD", "#5E366E", "#A98CCC"])
 
 file_path = os.path.dirname(os.path.realpath(__file__))
-customtkinter.set_appearance_mode("dark")
+customtkinter.set_appearance_mode("Sysyem")
 customtkinter.set_default_color_theme("green")
 root_tk = customtkinter.CTk() 
 root_tk.geometry("1225x625")
@@ -43,7 +50,7 @@ def update_system_info():
 
         # Update the process list
         update_process_list(processes)
-
+        update_performance_graphs(cpu_percent, memory_percent, network.packets_sent, network.packets_recv)
         # # Update the real-time CPU usage label
         cpu_label.configure(text=f'CPU Usage: {cpu_percent:.2f}%')
         
@@ -78,7 +85,17 @@ def update_process_list(processes):
 
 
 
-
+def update_performance_graphs(cpu_percent, memory_percent, network_sent, network_received):
+    # Update CPU graph
+    cpu_data.append(cpu_percent)
+    if len(cpu_data) > max_data_points:
+        cpu_data.pop(0)
+    cpu_ax.clear()
+    cpu_ax.plot(cpu_data,  label='CPU Usage')
+    cpu_ax.fill_between(range(len(cpu_data)), 0, cpu_data)
+    cpu_ax.set_ylim(0, 100)
+    cpu_ax.set_title('CPU Usage (%)')
+    cpu_canvas.draw()
 
 
 
@@ -177,31 +194,28 @@ tabview= customtkinter.CTkTabview(performance_frame,width=938,height=540,corner_
 cpu_tab= tabview.add("CPU")
 memory_tab=tabview.add("Memory")
 network_tab=tabview.add("Network")
-cpu_tab.grid_columnconfigure(0,weight=1)
-cpu_tab.grid_columnconfigure(1,weight=5)
-# memory_tab.grid_columnconfigure(0,weight=1)
-# network_tab.grid_columnconfigure(0,weight=1)
 
 
-cpu_text_frame=customtkinter.CTkFrame(cpu_tab,width=100,height=250)
-
+cpu_text_frame=customtkinter.CTkFrame(cpu_tab, width=50, height=50)
 
 dial4 = Dial(master=cpu_text_frame, color_gradient=("red", "blue"),
-             text_color="white", text="", unit_width=10, radius=120,scroll=False)
+             text_color="white", text="", unit_width=10, radius=110, scroll=False)
+dial4.pack(side="left")  # Changing the pack placement to the left side
 
-dial4.grid(row=0, column=0)
-dial4.pack(anchor="center", pady=5)
-cpu_text_frame.pack(anchor="w")
-# cpu_text_frame.pack()
-# # cpu_text=ttk.Label(cpu_text_frame,text="CPU Usage :")
-# # cpu_text.pack()
+cpu_label = customtkinter.CTkLabel(cpu_text_frame, font=('Poppins', 27, 'bold'))
+cpu_label.pack(side="left", padx=10)  # Placing the label to the left with some padding
 
-cpu_label = customtkinter.CTkLabel(cpu_text_frame,font=('Poppins', 27,'bold'))
-cpu_label.pack(padx=90, pady=100)
+cpu_text_frame.pack(anchor="center", pady=5)
 
 
 
-
+cpu_data = []
+max_data_points = 120
+cpu_fig = plt.Figure(figsize=(8,2.5),facecolor=(1, 1, 1, 0)) 
+cpu_ax = cpu_fig.add_subplot(111)
+cpu_ax.set_facecolor('none') 
+cpu_canvas = FigureCanvasTkAgg(cpu_fig, master=cpu_tab)
+cpu_canvas.get_tk_widget().pack()
 
 
 
