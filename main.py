@@ -1,4 +1,5 @@
 import tkinter
+import platform
 import psutil
 import customtkinter
 # from PIL import Image,ImageTk
@@ -143,11 +144,36 @@ sidebar = customtkinter.CTkFrame(
 sidebar.grid(row=0, column=0, padx=20, pady=20)
 
 def show_tab(tab_id):
-    process_frame.pack_forget()
-    performance_frame.pack_forget()
-    tab_id.tkraise()
+     # A list of frames to manage
+    # A list of frames to manage
+    frames = [specs_frame, performance_frame, process_frame]
 
+    # Hide all frames placed using pack
+    for frame in frames:
+        frame.pack_forget()
 
+    # Hide all frames placed using grid
+    for frame in frames:
+        frame.grid_remove()
+
+    # Show the selected frame
+    tab_id.pack()  # For frames placed using pack
+    tab_id.grid()
+
+button_0 = customtkinter.CTkButton(
+    master=sidebar,
+    text="Specs",
+    command=lambda: show_tab(specs_frame),
+    width=175,
+    height=32,
+    border_width=0, compound="right",
+    border_spacing=8,
+    corner_radius=8,
+    fg_color="#48a4ec",
+    text_color="White",
+    font=("Poppins",14,'bold') # Set the font to Poppins with size 10
+)
+button_0.place(relx=0.06, rely=0.07)
 
 button_1 = customtkinter.CTkButton(
     master=sidebar,
@@ -164,7 +190,7 @@ button_1 = customtkinter.CTkButton(
     border_spacing=8
      # Set the font to Poppins with size 10
 )
-button_1.place(relx=0.06, rely=0.07)
+button_1.place(relx=0.06, rely=0.25)
 button_2 = customtkinter.CTkButton(
     master=sidebar,
     text="Process",
@@ -178,7 +204,9 @@ button_2 = customtkinter.CTkButton(
     text_color="White",
     font=("Poppins",14,'bold') # Set the font to Poppins with size 10
 )
-button_2.place(relx=0.06, rely=0.16)
+button_2.place(relx=0.06, rely=0.34)
+
+
 
 right_frame = customtkinter.CTkFrame(
     master=root_tk,
@@ -188,6 +216,51 @@ right_frame = customtkinter.CTkFrame(
     fg_color="transparent"
 )
 right_frame.grid(row=0, column=1, padx=0, pady=20)
+def get_spec_info():
+    spec_frame_info = {
+        "Computer network name": platform.node(),
+        "Machine type": platform.machine(),
+        "Processor type": platform.processor(),
+        "Platform type": platform.platform(),
+        "Operating system": platform.system(),
+        "Operating system release": platform.release(),
+        "Operating system version": platform.version(),
+        "Number of physical cores": psutil.cpu_count(logical=False),
+        "Number of logical cores": psutil.cpu_count(logical=True),
+        "Min CPU frequency": f"{psutil.cpu_freq().min} Mhz",
+        "Max CPU frequency": f"{psutil.cpu_freq().max} Mhz",
+        "Total RAM installed": f"{round(psutil.virtual_memory().total / 1e+9, 2)} GB",
+        "Current directory": os.getcwd(),
+        "Current Disk": f"{psutil.disk_usage(os.getcwd()).total / 1e+9:.2f} GB"
+    }
+    return spec_frame_info
+
+def update_spec_info():
+    spec_info = get_spec_info()
+    formatted_info = "\n".join([f"{key}: {value}" for key, value in spec_info.items()])
+
+    # Update the text label in the specs frame
+    specs_text.configure(text=formatted_info)
+    
+specs_frame = customtkinter.CTkFrame(
+    master=right_frame,
+    width=950,
+    height=550,
+    corner_radius=10,
+    fg_color="white"
+)
+specs_frame.grid(row=0, column=1, padx=0, pady=20)
+specs_text_frame=customtkinter.CTkFrame(specs_frame,fg_color='white')
+specs_text=customtkinter.CTkLabel(specs_text_frame,font=('Poppins', 22, 'bold'),)
+                                  
+
+specs_text_frame.pack()
+specs_text.pack(padx=120,pady=95)
+
+
+
+
+
 
 process_frame = customtkinter.CTkFrame(
     master=right_frame,
@@ -287,6 +360,7 @@ process_list.pack(expand=True, fill=tk.BOTH)
 
 # Start updating system information and performance graphs
 update_system_info()
+update_spec_info()
 
 
 root_tk.mainloop()
