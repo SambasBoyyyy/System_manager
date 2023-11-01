@@ -1,7 +1,7 @@
 import tkinter
 import psutil
 import customtkinter
-from PIL import Image,ImageTk
+# from PIL import Image,ImageTk
 import os
 import tkinter as tk
 from tkinter import ttk
@@ -54,7 +54,7 @@ def update_system_info():
 
         # Update the process list
         update_process_list(processes)
-        update_performance_graphs(cpu_percent, memory_percent, network.packets_sent, network.packets_recv)
+        update_performance_graphs(cpu_percent, memory_percent, network.bytes_sent, network.bytes_recv)
         # # Update the real-time CPU usage label
         cpu_label.configure(text=f'CPU Usage: {cpu_percent:.2f}%')
         
@@ -65,7 +65,7 @@ def update_system_info():
         dial5.set(memory_percent)
 
         # # Update the real-time network usage label
-        # network_usage_label.config(text=f'Network Usage: Sent: {network.packets_sent} packets, Received: {network.packets_recv} packets')
+        network_usage_label.configure(text=f'Network Usage: Sent: {network.bytes_sent} bytes, Received: {network.bytes_recv} bytes')
 
     except psutil.NoSuchProcess:
         pass
@@ -106,12 +106,24 @@ def update_performance_graphs(cpu_percent, memory_percent, network_sent, network
     if len(memory_data) > max_data_points:
         memory_data.pop(0)
     memory_ax.clear()
-    memory_ax.plot(memory_data ,label='Memory Usage')
+    memory_ax.plot(memory_data ,label='Memory Usage',color='blue')
     memory_ax.fill_between(range(len(memory_data)), 0, memory_data)
     memory_ax.set_ylim(0, 100)
     memory_ax.set_title('Memory Usage (%)')
     memory_canvas.draw()
-
+ # Update Network graph
+    network_sent_data.append(network_sent)
+    network_received_data.append(network_received)
+    if len(network_sent_data) > max_data_points:
+        network_sent_data.pop(0)
+        network_received_data.pop(0)
+    network_ax.clear()
+    network_ax.plot(network_sent_data, color='blue', label='Sent')
+    network_ax.plot(network_received_data, color='purple', label='Received')
+    network_ax.set_title('Network Usage (Packets)')
+    network_ax.legend()
+    network_canvas.draw()
+    
 
 
 
@@ -135,12 +147,11 @@ def show_tab(tab_id):
     performance_frame.pack_forget()
     tab_id.tkraise()
 
-image_1=customtkinter.CTkImage(Image.open(file_path+"/assets/performance.png"),size=(26,20))
+
 
 button_1 = customtkinter.CTkButton(
     master=sidebar,
     text="Performance",
-    image=image_1,
     font=("Poppins",14,'bold'),
     command=lambda: show_tab(performance_frame),
     width=175,
@@ -154,11 +165,9 @@ button_1 = customtkinter.CTkButton(
      # Set the font to Poppins with size 10
 )
 button_1.place(relx=0.06, rely=0.07)
-image_2=customtkinter.CTkImage(Image.open(file_path+"/assets/list.png"),size=(26,20))
 button_2 = customtkinter.CTkButton(
     master=sidebar,
     text="Process",
-    image=image_2,
     command=lambda: show_tab(process_frame),
     width=175,
     height=32,
@@ -234,7 +243,7 @@ cpu_canvas.get_tk_widget().pack()
 
 #memry tab
 memory_text_frame=customtkinter.CTkFrame(memory_tab,fg_color='white')
-dial5 = Dial(master=memory_text_frame, color_gradient=("red", "blue"),
+dial5 = Dial(master=memory_text_frame, color_gradient=( "blue","red"),
              text_color="white", text="", unit_width=10, radius=110, scroll=False)
 dial5.pack(side="left")
 memory_label = customtkinter.CTkLabel(memory_text_frame, font=('Poppins', 27, 'bold'),text_color='#228B22')
@@ -249,6 +258,14 @@ memory_canvas = FigureCanvasTkAgg(memory_fig, master=memory_tab)
 memory_canvas.get_tk_widget().pack()
 
 
+network_sent_data = []
+network_received_data = []
+network_fig = plt.Figure(figsize=(8, 3.5))
+network_ax = network_fig.add_subplot(111)
+network_canvas = FigureCanvasTkAgg(network_fig, master=network_tab)
+network_canvas.get_tk_widget().pack()
+network_usage_label = customtkinter.CTkLabel(network_tab,font=('Poppins', 27, 'bold'))
+network_usage_label.pack()
 
 tabview.pack()
 
