@@ -41,18 +41,6 @@ def update_system_info():
         # Update system information in the GUI
         cpu_percent, memory_percent, network, processes = sys_info.get_system_info()
 
-        # # Update CPU label
-        # cpu_label.config(text=f'CPU Usage: {cpu_percent:.2f}%')
-
-        # # Update memory label
-        # memory_label.config(text=f'Memory Usage: {memory_percent:.2f}%')
-
-        # # Update network label
-        # network_label.config(text=f'Network Usage: Sent: {network.packets_sent} packets, Received: {network.packets_recv} packets')
-
-        # # Update the performance graphs
-        #update_performance_graphs(cpu_percent, memory_percent, network.bytes_sent, network.bytes_recv)
-
         # Update the process list
         update_process_list(processes)
         update_performance_graphs(cpu_percent, memory_percent, network.bytes_sent, network.bytes_recv)

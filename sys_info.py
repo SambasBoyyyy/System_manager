@@ -2,7 +2,7 @@ import psutil
 
 def get_system_info():
     # Retrieve system information using psutil library
-    cpu_percent = psutil.cpu_percent(interval=1)
+    cpu_percent = psutil.cpu_percent()
     memory = psutil.virtual_memory()
     network = psutil.net_io_counters()
     processes = list(psutil.process_iter())
